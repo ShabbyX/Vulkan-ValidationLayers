@@ -58,12 +58,13 @@ generated_layer_source_files = [
 'object_tracker.cpp',
 ]
 layer_source_files = [
+'../layers/buffer_validation.cpp',
 '../layers/core_validation.cpp',
 '../layers/descriptor_sets.cpp',
 '../layers/parameter_validation_utils.cpp',
 '../layers/object_tracker_utils.cpp',
 '../layers/shader_validation.cpp',
-'../layers/buffer_validation.cpp',
+'../layers/stateless_validation.h'
 ]
 
 # This needs to be updated as new extensions roll in
