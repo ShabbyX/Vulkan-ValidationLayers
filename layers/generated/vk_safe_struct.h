@@ -8484,6 +8484,39 @@ struct safe_VkSemaphoreGetZirconHandleInfoFUCHSIA {
 };
 #endif // VK_USE_PLATFORM_FUCHSIA
 
+struct safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT {
+    VkStructureType sType;
+    void* pNext;
+    VkBool32 multisampledRenderToSingleSampled;
+    safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT(const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT* in_struct);
+    safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT(const safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT& copy_src);
+    safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT& operator=(const safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT& copy_src);
+    safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT();
+    ~safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT();
+    void initialize(const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT* in_struct);
+    void initialize(const safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT* copy_src);
+    VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT *ptr() { return reinterpret_cast<VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT *>(this); }
+    VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT const *ptr() const { return reinterpret_cast<VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT const *>(this); }
+};
+
+struct safe_VkMultisampledRenderToSingleSampledInfoEXT {
+    VkStructureType sType;
+    const void* pNext;
+    VkBool32 multisampledRenderToSingleSampledEnable;
+    VkSampleCountFlagBits rasterizationSamples;
+    VkResolveModeFlagBits depthResolveMode;
+    VkResolveModeFlagBits stencilResolveMode;
+    safe_VkMultisampledRenderToSingleSampledInfoEXT(const VkMultisampledRenderToSingleSampledInfoEXT* in_struct);
+    safe_VkMultisampledRenderToSingleSampledInfoEXT(const safe_VkMultisampledRenderToSingleSampledInfoEXT& copy_src);
+    safe_VkMultisampledRenderToSingleSampledInfoEXT& operator=(const safe_VkMultisampledRenderToSingleSampledInfoEXT& copy_src);
+    safe_VkMultisampledRenderToSingleSampledInfoEXT();
+    ~safe_VkMultisampledRenderToSingleSampledInfoEXT();
+    void initialize(const VkMultisampledRenderToSingleSampledInfoEXT* in_struct);
+    void initialize(const safe_VkMultisampledRenderToSingleSampledInfoEXT* copy_src);
+    VkMultisampledRenderToSingleSampledInfoEXT *ptr() { return reinterpret_cast<VkMultisampledRenderToSingleSampledInfoEXT *>(this); }
+    VkMultisampledRenderToSingleSampledInfoEXT const *ptr() const { return reinterpret_cast<VkMultisampledRenderToSingleSampledInfoEXT const *>(this); }
+};
+
 #ifdef VK_USE_PLATFORM_SCREEN_QNX
 struct safe_VkScreenSurfaceCreateInfoQNX {
     VkStructureType sType;

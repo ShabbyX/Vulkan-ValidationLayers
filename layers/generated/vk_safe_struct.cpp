@@ -36466,6 +36466,127 @@ void safe_VkSemaphoreGetZirconHandleInfoFUCHSIA::initialize(const safe_VkSemapho
 }
 #endif // VK_USE_PLATFORM_FUCHSIA
 
+
+safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT::safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT(const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT* in_struct) :
+    sType(in_struct->sType),
+    multisampledRenderToSingleSampled(in_struct->multisampledRenderToSingleSampled)
+{
+    pNext = SafePnextCopy(in_struct->pNext);
+}
+
+safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT::safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT() :
+    sType(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT),
+    pNext(nullptr)
+{}
+
+safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT::safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT(const safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT& copy_src)
+{
+    sType = copy_src.sType;
+    multisampledRenderToSingleSampled = copy_src.multisampledRenderToSingleSampled;
+    pNext = SafePnextCopy(copy_src.pNext);
+}
+
+safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT& safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT::operator=(const safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT& copy_src)
+{
+    if (&copy_src == this) return *this;
+
+    if (pNext)
+        FreePnextChain(pNext);
+
+    sType = copy_src.sType;
+    multisampledRenderToSingleSampled = copy_src.multisampledRenderToSingleSampled;
+    pNext = SafePnextCopy(copy_src.pNext);
+
+    return *this;
+}
+
+safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT::~safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT()
+{
+    if (pNext)
+        FreePnextChain(pNext);
+}
+
+void safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT::initialize(const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT* in_struct)
+{
+    sType = in_struct->sType;
+    multisampledRenderToSingleSampled = in_struct->multisampledRenderToSingleSampled;
+    pNext = SafePnextCopy(in_struct->pNext);
+}
+
+void safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT::initialize(const safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT* copy_src)
+{
+    sType = copy_src->sType;
+    multisampledRenderToSingleSampled = copy_src->multisampledRenderToSingleSampled;
+    pNext = SafePnextCopy(copy_src->pNext);
+}
+
+safe_VkMultisampledRenderToSingleSampledInfoEXT::safe_VkMultisampledRenderToSingleSampledInfoEXT(const VkMultisampledRenderToSingleSampledInfoEXT* in_struct) :
+    sType(in_struct->sType),
+    multisampledRenderToSingleSampledEnable(in_struct->multisampledRenderToSingleSampledEnable),
+    rasterizationSamples(in_struct->rasterizationSamples),
+    depthResolveMode(in_struct->depthResolveMode),
+    stencilResolveMode(in_struct->stencilResolveMode)
+{
+    pNext = SafePnextCopy(in_struct->pNext);
+}
+
+safe_VkMultisampledRenderToSingleSampledInfoEXT::safe_VkMultisampledRenderToSingleSampledInfoEXT() :
+    sType(VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT),
+    pNext(nullptr)
+{}
+
+safe_VkMultisampledRenderToSingleSampledInfoEXT::safe_VkMultisampledRenderToSingleSampledInfoEXT(const safe_VkMultisampledRenderToSingleSampledInfoEXT& copy_src)
+{
+    sType = copy_src.sType;
+    multisampledRenderToSingleSampledEnable = copy_src.multisampledRenderToSingleSampledEnable;
+    rasterizationSamples = copy_src.rasterizationSamples;
+    depthResolveMode = copy_src.depthResolveMode;
+    stencilResolveMode = copy_src.stencilResolveMode;
+    pNext = SafePnextCopy(copy_src.pNext);
+}
+
+safe_VkMultisampledRenderToSingleSampledInfoEXT& safe_VkMultisampledRenderToSingleSampledInfoEXT::operator=(const safe_VkMultisampledRenderToSingleSampledInfoEXT& copy_src)
+{
+    if (&copy_src == this) return *this;
+
+    if (pNext)
+        FreePnextChain(pNext);
+
+    sType = copy_src.sType;
+    multisampledRenderToSingleSampledEnable = copy_src.multisampledRenderToSingleSampledEnable;
+    rasterizationSamples = copy_src.rasterizationSamples;
+    depthResolveMode = copy_src.depthResolveMode;
+    stencilResolveMode = copy_src.stencilResolveMode;
+    pNext = SafePnextCopy(copy_src.pNext);
+
+    return *this;
+}
+
+safe_VkMultisampledRenderToSingleSampledInfoEXT::~safe_VkMultisampledRenderToSingleSampledInfoEXT()
+{
+    if (pNext)
+        FreePnextChain(pNext);
+}
+
+void safe_VkMultisampledRenderToSingleSampledInfoEXT::initialize(const VkMultisampledRenderToSingleSampledInfoEXT* in_struct)
+{
+    sType = in_struct->sType;
+    multisampledRenderToSingleSampledEnable = in_struct->multisampledRenderToSingleSampledEnable;
+    rasterizationSamples = in_struct->rasterizationSamples;
+    depthResolveMode = in_struct->depthResolveMode;
+    stencilResolveMode = in_struct->stencilResolveMode;
+    pNext = SafePnextCopy(in_struct->pNext);
+}
+
+void safe_VkMultisampledRenderToSingleSampledInfoEXT::initialize(const safe_VkMultisampledRenderToSingleSampledInfoEXT* copy_src)
+{
+    sType = copy_src->sType;
+    multisampledRenderToSingleSampledEnable = copy_src->multisampledRenderToSingleSampledEnable;
+    rasterizationSamples = copy_src->rasterizationSamples;
+    depthResolveMode = copy_src->depthResolveMode;
+    stencilResolveMode = copy_src->stencilResolveMode;
+    pNext = SafePnextCopy(copy_src->pNext);
+}
 #ifdef VK_USE_PLATFORM_SCREEN_QNX
 
 
@@ -39145,6 +39266,12 @@ void *SafePnextCopy(const void *pNext) {
         case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_VALVE:
             safe_pNext = new safe_VkMutableDescriptorTypeCreateInfoVALVE(reinterpret_cast<const VkMutableDescriptorTypeCreateInfoVALVE *>(pNext));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT:
+            safe_pNext = new safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT(reinterpret_cast<const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT *>(pNext));
+            break;
+        case VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT:
+            safe_pNext = new safe_VkMultisampledRenderToSingleSampledInfoEXT(reinterpret_cast<const VkMultisampledRenderToSingleSampledInfoEXT *>(pNext));
+            break;
         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
             safe_pNext = new safe_VkWriteDescriptorSetAccelerationStructureKHR(reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR *>(pNext));
             break;
@@ -40002,6 +40129,12 @@ void FreePnextChain(const void *pNext) {
             break;
         case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_VALVE:
             delete reinterpret_cast<const safe_VkMutableDescriptorTypeCreateInfoVALVE *>(header);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT:
+            delete reinterpret_cast<const safe_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT *>(header);
+            break;
+        case VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT:
+            delete reinterpret_cast<const safe_VkMultisampledRenderToSingleSampledInfoEXT *>(header);
             break;
         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
             delete reinterpret_cast<const safe_VkWriteDescriptorSetAccelerationStructureKHR *>(header);

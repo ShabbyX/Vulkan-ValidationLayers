@@ -24,6 +24,7 @@
  * Author: Shannon McPherson <shannon@lunarg.com>
  * Author: John Zulauf <jzulauf@lunarg.com>
  * Author: Tobias Hector <tobias.hector@amd.com>
+ * Author: Shahbaz Youssefi <syoussefi@google.com>
  */
 
 #include "cast_utils.h"
@@ -11690,6 +11691,445 @@ TEST_F(VkLayerTest, CmdCopyAccelerationStructureToMemoryKHR) {
     cb.end();
 
     vkDestroyAccelerationStructureKHR(m_device->handle(), as, nullptr);
+}
+
+TEST_F(VkLayerTest, ValidateMultisampledRenderToSingleSampledDisabled) {
+    TEST_DESCRIPTION("Validate VK_EXT_multisampled_render_to_single_sampled VUs");
+
+    ASSERT_NO_FATAL_FAILURE(InitFramework(m_errorMonitor));
+
+    bool rp2Supported = CheckCreateRenderPass2Support(this, m_device_extension_names);
+    if (!rp2Supported) {
+        printf("%s Did not find required device extension %s; skipped.\n", kSkipPrefix, VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME);
+        return;
+    }
+
+    if (DeviceExtensionSupported(gpu(), nullptr, VK_EXT_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_EXTENSION_NAME)) {
+        m_device_extension_names.push_back(VK_EXT_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_EXTENSION_NAME);
+    } else {
+        printf("%s Extension %s is not supported.\n", kSkipPrefix, VK_EXT_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_EXTENSION_NAME);
+        return;
+    }
+
+    auto multisampled_render_to_single_sampled_features = LvlInitStruct<VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT>();
+    multisampled_render_to_single_sampled_features.multisampledRenderToSingleSampled = VK_TRUE; // TODO: remove
+    auto features2 = LvlInitStruct<VkPhysicalDeviceFeatures2>(&multisampled_render_to_single_sampled_features);
+    vk::GetPhysicalDeviceFeatures2(gpu(), &features2);
+    if (!multisampled_render_to_single_sampled_features.multisampledRenderToSingleSampled) {
+        printf("%s Test requires (unsupported) multisampledRenderToSingleSampled, skipping\n", kSkipPrefix);
+        return;
+    }
+
+    // First test attempted uses of VK_EXT_multisampled_render_to_single_sampled without it being enabled.
+    multisampled_render_to_single_sampled_features.multisampledRenderToSingleSampled = VK_FALSE;
+    ASSERT_NO_FATAL_FAILURE(InitState(nullptr, &features2));
+
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+
+    VkAttachmentDescription2KHR attachmentDescription = {};
+    attachmentDescription.sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
+    attachmentDescription.format = VK_FORMAT_R8G8B8A8_UNORM;
+    attachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
+    attachmentDescription.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+    VkAttachmentReference2KHR colorAttachment = {};
+    colorAttachment.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2;
+    colorAttachment.attachment = 0;
+    colorAttachment.layout = VK_IMAGE_LAYOUT_GENERAL;
+    colorAttachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+
+    VkMultisampledRenderToSingleSampledInfoEXT msrtss = {};
+    msrtss.sType = VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT;
+    msrtss.multisampledRenderToSingleSampledEnable = VK_TRUE;
+    msrtss.rasterizationSamples = VK_SAMPLE_COUNT_4_BIT;
+    msrtss.depthResolveMode = VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
+    msrtss.stencilResolveMode = VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
+
+    VkSubpassDescription2KHR subpassDescription = {};
+    subpassDescription.sType = VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2_KHR;
+    subpassDescription.pNext = &msrtss;
+    subpassDescription.colorAttachmentCount = 1;
+    subpassDescription.pColorAttachments = &colorAttachment;
+
+    VkRenderPassCreateInfo2KHR renderPassCreateInfo = {};
+    renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2_KHR;
+    renderPassCreateInfo.attachmentCount = 1;
+    renderPassCreateInfo.subpassCount = 1;
+    renderPassCreateInfo.pSubpasses = &subpassDescription;
+    renderPassCreateInfo.pAttachments = &attachmentDescription;
+
+    VkRenderPass renderPass;
+    PFN_vkCreateRenderPass2KHR vkCreateRenderPass2KHR =
+        (PFN_vkCreateRenderPass2KHR)vk::GetDeviceProcAddr(m_device->device(), "vkCreateRenderPass2KHR");
+
+    m_errorMonitor->SetDesiredFailureMsg(kErrorBit, "VUID-TODO-MSRTSS-feature-not-enabled");
+    vkCreateRenderPass2KHR(m_device->device(), &renderPassCreateInfo, nullptr, &renderPass);
+    m_errorMonitor->VerifyFound();
+}
+
+TEST_F(VkLayerTest, ValidateMultisampledRenderToSingleSampledEnabled) {
+    TEST_DESCRIPTION("Validate VK_EXT_multisampled_render_to_single_sampled VUs");
+
+    ASSERT_NO_FATAL_FAILURE(InitFramework(m_errorMonitor));
+
+    bool rp2Supported = CheckCreateRenderPass2Support(this, m_device_extension_names);
+    if (!rp2Supported) {
+        printf("%s Did not find required device extension %s; skipped.\n", kSkipPrefix, VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME);
+        return;
+    }
+
+    if (DeviceExtensionSupported(gpu(), nullptr, VK_EXT_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_EXTENSION_NAME)) {
+        m_device_extension_names.push_back(VK_EXT_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_EXTENSION_NAME);
+    } else {
+        printf("%s Extension %s is not supported.\n", kSkipPrefix, VK_EXT_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_EXTENSION_NAME);
+        return;
+    }
+
+    auto multisampled_render_to_single_sampled_features = LvlInitStruct<VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT>();
+    multisampled_render_to_single_sampled_features.multisampledRenderToSingleSampled = VK_TRUE; // TODO: remove
+    auto features2 = LvlInitStruct<VkPhysicalDeviceFeatures2>(&multisampled_render_to_single_sampled_features);
+    vk::GetPhysicalDeviceFeatures2(gpu(), &features2);
+    if (!multisampled_render_to_single_sampled_features.multisampledRenderToSingleSampled) {
+        printf("%s Test requires (unsupported) multisampledRenderToSingleSampled, skipping\n", kSkipPrefix);
+        return;
+    }
+
+    ASSERT_NO_FATAL_FAILURE(InitState(nullptr, &features2));
+
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+
+    // Test with 4 possible attachments:
+    //
+    // - R8G8B8A8_UNORM at 1x
+    // - R16G16B16A16_SFLOAT at 4x
+    // - R32G32B32A32_UINT at 1x
+    // - D16_UNORM at 1x
+    //
+    // Test is done on combination of these attachments in different scenarios.
+
+    // Set up render pass description structs
+
+    VkAttachmentDescription2KHR attachmentDescriptions[4] = {};
+    attachmentDescriptions[0].sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
+    attachmentDescriptions[0].format = VK_FORMAT_R8G8B8A8_UNORM;
+    attachmentDescriptions[0].samples = VK_SAMPLE_COUNT_1_BIT;
+    attachmentDescriptions[0].finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+    attachmentDescriptions[1].sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
+    attachmentDescriptions[1].format = VK_FORMAT_R16G16B16A16_SFLOAT;
+    attachmentDescriptions[1].samples = VK_SAMPLE_COUNT_4_BIT;
+    attachmentDescriptions[1].finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+    attachmentDescriptions[2].sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
+    attachmentDescriptions[2].format = VK_FORMAT_R32G32B32A32_UINT;
+    attachmentDescriptions[2].samples = VK_SAMPLE_COUNT_1_BIT;
+    attachmentDescriptions[2].finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+    attachmentDescriptions[3].sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
+    attachmentDescriptions[3].format = VK_FORMAT_D16_UNORM;
+    attachmentDescriptions[3].samples = VK_SAMPLE_COUNT_1_BIT;
+    attachmentDescriptions[3].finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+    VkAttachmentReference2KHR colorAttachmentReference = {};
+    colorAttachmentReference.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2;
+    colorAttachmentReference.attachment = VK_ATTACHMENT_UNUSED;
+    colorAttachmentReference.layout = VK_IMAGE_LAYOUT_GENERAL;
+    colorAttachmentReference.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+
+    VkAttachmentReference2KHR depthAttachmentReference = colorAttachmentReference;
+    depthAttachmentReference.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+
+    VkMultisampledRenderToSingleSampledInfoEXT msrtss = {};
+    msrtss.sType = VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT;
+
+    VkSubpassDescription2KHR subpassDescription = {};
+    subpassDescription.sType = VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2_KHR;
+    subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+
+    VkSubpassDependency2KHR subpassDependency = {};
+    subpassDependency.sType = VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2;
+    subpassDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+    subpassDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    subpassDependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    subpassDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+        VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+    subpassDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+    VkRenderPassCreateInfo2KHR renderPassCreateInfo = {};
+    renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2_KHR;
+
+    // Set up framebuffer objects
+
+    constexpr uint32_t framebufferWidth = 123;
+    constexpr uint32_t framebufferHeight = 77;
+
+    VkImageCreateInfo imageCreateInfo = {};
+    imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+    imageCreateInfo.extent.width = framebufferWidth;
+    imageCreateInfo.extent.height = framebufferHeight;
+    imageCreateInfo.extent.depth = 1;
+    imageCreateInfo.mipLevels = 1;
+    imageCreateInfo.arrayLayers = 1;
+    imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+
+    VkImageObj image0(m_device);
+    VkImageObj image1(m_device);
+    VkImageObj image2(m_device);
+    VkImageObj image3(m_device);
+    VkImageObj *images[4] = {&image0, &image1, &image2, &image3};
+    VkImageView imageViews[4];
+
+    for (size_t i = 0; i < 4; ++i) {
+        const bool isDepth = attachmentDescriptions[i].format == VK_FORMAT_D16_UNORM;
+
+        imageCreateInfo.format = attachmentDescriptions[i].format;
+        imageCreateInfo.samples = attachmentDescriptions[i].samples;
+        imageCreateInfo.usage = isDepth ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+        images[i]->init(&imageCreateInfo);
+        ASSERT_TRUE(images[i]->initialized()) << i;
+
+        imageViews[i] = images[i]->targetView(imageCreateInfo.format, isDepth ?  VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
+    }
+
+    VkFramebufferCreateInfo framebufferCreateInfo = {};
+    framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    framebufferCreateInfo.width = framebufferWidth;
+    framebufferCreateInfo.height = framebufferHeight;
+    framebufferCreateInfo.layers = 1;
+
+    VkPipelineColorBlendAttachmentState blendState = {};
+    blendState.colorWriteMask = VK_COLOR_COMPONENT_R_BIT;
+
+    VkPipelineMultisampleStateCreateInfo msaa = {};
+    msaa.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    msaa.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+    PFN_vkCreateRenderPass2KHR vkCreateRenderPass2KHR =
+        (PFN_vkCreateRenderPass2KHR)vk::GetDeviceProcAddr(m_device->device(), "vkCreateRenderPass2KHR");
+
+    // Test case descriptions
+    struct Subpass {
+        std::vector<uint32_t> attachments;
+        bool msrtssEnabled;
+        VkSampleCountFlagBits msrtssSamples;
+        VkSampleCountFlagBits pipelineSamples;
+    };
+    struct TestCase {
+        std::vector<uint32_t> attachments;
+        std::vector<Subpass> subpasses;
+
+        VkResolveModeFlagBits depthResolveMode;
+        VkResolveModeFlagBits stencilResolveMode;
+
+        const char *expectedRenderPassCreationFailure;
+        const char *expectedFramebufferCreationFailure;
+        const char *expectedPipelineCreationFailure;
+    };
+
+    // TODO: add a variation for input attachments
+    const std::vector<TestCase> testCases = {
+        // Valid test case using MSRTSS to render to 1x attachment at 4x.
+        {{0}, {{{0}, true, VK_SAMPLE_COUNT_4_BIT, VK_SAMPLE_COUNT_4_BIT}},
+            VK_RESOLVE_MODE_NONE, VK_RESOLVE_MODE_NONE, nullptr, nullptr, nullptr},
+        // Valid test case using MSRTSS to render to 1x attachment at 4x (depth)
+        {{3}, {{{0}, true, VK_SAMPLE_COUNT_4_BIT, VK_SAMPLE_COUNT_4_BIT}},
+            VK_RESOLVE_MODE_SAMPLE_ZERO_BIT, VK_RESOLVE_MODE_SAMPLE_ZERO_BIT, nullptr, nullptr, nullptr},
+        // Valid test case using MSRTSS to render to 4x attachment at 4x.
+        {{1}, {{{0}, true, VK_SAMPLE_COUNT_4_BIT, VK_SAMPLE_COUNT_4_BIT}},
+            VK_RESOLVE_MODE_NONE, VK_RESOLVE_MODE_NONE, nullptr, nullptr, nullptr},
+        // Valid test case not using MSRTSS to render to 1x attachment at 1x.
+        {{0}, {{{0}, false, VK_SAMPLE_COUNT_4_BIT, VK_SAMPLE_COUNT_1_BIT}},
+            VK_RESOLVE_MODE_NONE, VK_RESOLVE_MODE_NONE, nullptr, nullptr, nullptr},
+        // Valid test case using MSRTSS to render to 1x and 4x attachments at 4x in individual subpasses.
+        {{0, 1}, {{{1}, false, VK_SAMPLE_COUNT_4_BIT, VK_SAMPLE_COUNT_4_BIT},
+                  {{0}, true, VK_SAMPLE_COUNT_4_BIT, VK_SAMPLE_COUNT_4_BIT}},
+            VK_RESOLVE_MODE_NONE, VK_RESOLVE_MODE_NONE, nullptr, nullptr, nullptr},
+        // Valid test case using MSRTSS to render to 1x and 4x attachments at 4x in the same subpasses.
+        {{0, 1}, {{{VK_ATTACHMENT_UNUSED, 1, VK_ATTACHMENT_UNUSED, 0}, true, VK_SAMPLE_COUNT_4_BIT, VK_SAMPLE_COUNT_4_BIT}},
+            VK_RESOLVE_MODE_NONE, VK_RESOLVE_MODE_NONE, nullptr, nullptr, nullptr},
+        // Valid test case not using MSRTSS to render to 1x attachment at 1x and 4x attachment at 4x.
+        {{0, 1}, {{{0}, false, VK_SAMPLE_COUNT_1_BIT, VK_SAMPLE_COUNT_1_BIT},
+                  {{1}, false, VK_SAMPLE_COUNT_4_BIT, VK_SAMPLE_COUNT_4_BIT}},
+            VK_RESOLVE_MODE_NONE, VK_RESOLVE_MODE_NONE, nullptr, nullptr, nullptr},
+
+        // TODO: errors are either no format support for attachment, or MSRTSS mismatch
+        //{{0, 1}, {{{0, 1}, VK_SAMPLE_COUNT_2_BIT}},
+        //         VK_RESOLVE_MODE_NONE, VK_RESOLVE_MODE_NONE, nullptr, nullptr, nullptr},
+        // TODO: either success if 8x is supported, or failure with format support otherwise
+        //{{0, 1}, {{{0}, VK_SAMPLE_COUNT_4_BIT},
+        //          {{0}, VK_SAMPLE_COUNT_8_BIT}},
+        //         VK_RESOLVE_MODE_NONE, VK_RESOLVE_MODE_NONE, nullptr, nullptr, nullptr},
+        // TODO: test 1x MSRTSS is invalid
+        // TODO: more combinations
+        // TODO: with depth, verify combination of different resolve modes based on
+        // EXT_depth_stencil_resolve features.  Need to change the depth format to depth/stencil.
+    };
+
+    VkShaderObj vs(m_device, bindStateVertShaderText, VK_SHADER_STAGE_VERTEX_BIT, this);
+
+    for (const TestCase &testCase : testCases) {
+        // Set up render pass and framebuffer info per test case description.
+        std::vector<VkAttachmentDescription2KHR> caseAttachmentDescriptions;
+        std::vector<VkImageView> caseImageViews;
+
+        for (const uint32_t imageIndex : testCase.attachments) {
+            caseAttachmentDescriptions.push_back(attachmentDescriptions[imageIndex]);
+            caseImageViews.push_back(imageViews[imageIndex]);
+        }
+
+        std::vector<std::vector<VkAttachmentReference2KHR>> caseColorAttachmentReferences(testCase.subpasses.size());
+        std::vector<VkAttachmentReference2KHR> caseDepthAttachmentReferences(testCase.subpasses.size(), depthAttachmentReference);
+        std::vector<VkMultisampledRenderToSingleSampledInfoEXT> caseMsrtss(testCase.subpasses.size(), msrtss);
+        std::vector<VkSubpassDescription2KHR> caseSubpassDescriptions(testCase.subpasses.size(), subpassDescription);
+        std::vector<VkSubpassDependency2KHR> caseSubpassDependencies(testCase.subpasses.size() - 1, subpassDependency);
+
+        for (size_t subpassIndex = 0; subpassIndex < testCase.subpasses.size(); ++subpassIndex) {
+            const Subpass &subpass = testCase.subpasses[subpassIndex];
+
+            for (const uint32_t attachmentIndex : subpass.attachments) {
+                const uint32_t imageIndex = attachmentIndex == VK_ATTACHMENT_UNUSED ? 0 : testCase.attachments[attachmentIndex];
+
+                const bool isDepth = attachmentDescriptions[imageIndex].format == VK_FORMAT_D16_UNORM;
+                if (isDepth) {
+                    caseDepthAttachmentReferences[subpassIndex].attachment = attachmentIndex;
+                }
+                else {
+                    caseColorAttachmentReferences[subpassIndex].push_back(colorAttachmentReference);
+                    caseColorAttachmentReferences[subpassIndex].back().attachment = attachmentIndex;
+                }
+            }
+
+            caseMsrtss[subpassIndex].multisampledRenderToSingleSampledEnable = subpass.msrtssEnabled;
+            caseMsrtss[subpassIndex].rasterizationSamples = subpass.msrtssSamples;
+            caseMsrtss[subpassIndex].depthResolveMode = testCase.depthResolveMode;
+            caseMsrtss[subpassIndex].stencilResolveMode = testCase.stencilResolveMode;
+
+            caseSubpassDescriptions[subpassIndex].pNext = &caseMsrtss[subpassIndex];
+            caseSubpassDescriptions[subpassIndex].colorAttachmentCount = static_cast<uint32_t>(caseColorAttachmentReferences[subpassIndex].size());
+            caseSubpassDescriptions[subpassIndex].pColorAttachments = caseColorAttachmentReferences[subpassIndex].data();
+            caseSubpassDescriptions[subpassIndex].pDepthStencilAttachment = &caseDepthAttachmentReferences[subpassIndex];
+            // TODO: input attachments
+
+            if (subpassIndex > 0) {
+                caseSubpassDependencies[subpassIndex - 1].srcSubpass = subpassIndex - 1;
+                caseSubpassDependencies[subpassIndex - 1].dstSubpass = subpassIndex;
+            }
+        }
+
+        renderPassCreateInfo.attachmentCount = static_cast<uint32_t>(caseAttachmentDescriptions.size());
+        renderPassCreateInfo.pAttachments = caseAttachmentDescriptions.data();
+        renderPassCreateInfo.subpassCount = static_cast<uint32_t>(caseSubpassDescriptions.size());
+        renderPassCreateInfo.pSubpasses = caseSubpassDescriptions.data();
+        renderPassCreateInfo.dependencyCount = static_cast<uint32_t>(caseSubpassDependencies.size());
+        renderPassCreateInfo.pDependencies = caseSubpassDependencies.data();
+
+        // Create the render pass
+        fprintf(stderr, "Create RP\n");
+        VkRenderPass renderPass = VK_NULL_HANDLE;
+        if (testCase.expectedRenderPassCreationFailure != nullptr) {
+            m_errorMonitor->SetDesiredFailureMsg(kErrorBit, testCase.expectedRenderPassCreationFailure);
+            vkCreateRenderPass2KHR(m_device->device(), &renderPassCreateInfo, nullptr, &renderPass);
+            m_errorMonitor->VerifyFound();
+
+            // Cannot continue without a render pass.
+            continue;
+        } else
+        {
+            m_errorMonitor->ExpectSuccess();
+            vkCreateRenderPass2KHR(m_device->device(), &renderPassCreateInfo, nullptr, &renderPass);
+            m_errorMonitor->VerifyNotFound();
+        }
+
+        framebufferCreateInfo.renderPass = renderPass;
+        framebufferCreateInfo.attachmentCount = renderPassCreateInfo.attachmentCount;
+        framebufferCreateInfo.pAttachments = caseImageViews.data();
+
+        // Create the framebuffer
+        fprintf(stderr, "Create FB\n");
+        VkFramebuffer framebuffer = VK_NULL_HANDLE;
+        if (testCase.expectedFramebufferCreationFailure != nullptr) {
+            m_errorMonitor->SetDesiredFailureMsg(kErrorBit, testCase.expectedFramebufferCreationFailure);
+            vk::CreateFramebuffer(m_device->device(), &framebufferCreateInfo, nullptr, &framebuffer);
+            m_errorMonitor->VerifyFound();
+
+            // Cannot continue without a framebuffer.
+            vk::DestroyRenderPass(m_device->device(), renderPass, nullptr);
+            continue;
+        }
+        else {
+            m_errorMonitor->ExpectSuccess();
+            vk::CreateFramebuffer(m_device->device(), &framebufferCreateInfo, nullptr, &framebuffer);
+            m_errorMonitor->VerifyNotFound();
+        }
+
+        // Create a pipeline for each subpass
+        fprintf(stderr, "Create Pipeline\n");
+        for (size_t subpassIndex = 0; subpassIndex < testCase.subpasses.size(); ++subpassIndex) {
+            const Subpass &subpass = testCase.subpasses[subpassIndex];
+
+            std::ostringstream fsOutDecl;
+            std::ostringstream fsOutInit;
+
+            for (const uint32_t attachmentIndex : subpass.attachments) {
+                if (attachmentIndex == VK_ATTACHMENT_UNUSED) {
+                    continue;
+                }
+
+                const uint32_t imageIndex = testCase.attachments[attachmentIndex];
+                const VkFormat format = attachmentDescriptions[imageIndex].format;
+                const bool isDepth = format == VK_FORMAT_D16_UNORM;
+                const bool isUint = format == VK_FORMAT_R32G32B32A32_UINT;
+
+                if (isDepth) {
+                    continue;
+                }
+
+                const char *prefix = isUint ? "u" : "";
+
+                fsOutDecl << "layout(location = " << attachmentIndex << ") out " << prefix << "vec4 colorOut" << attachmentIndex << ";\n";
+                fsOutInit << "    colorOut" << attachmentIndex << " = " << prefix << "vec4(0);\n";
+            }
+
+            std::string fsSrc = "#version 450\n" + fsOutDecl.str() + "void main(){\n" + fsOutInit.str() + "}\n";
+
+            VkShaderObj fs(m_device, fsSrc.c_str(), VK_SHADER_STAGE_FRAGMENT_BIT, this);
+
+            const VkPipelineLayoutObj pipelineLayout(m_device);
+            VkPipelineObj pipeline(m_device);
+
+            for (size_t colorIndex = 0; colorIndex < caseColorAttachmentReferences[subpassIndex].size(); ++colorIndex) {
+                pipeline.AddColorAttachment(colorIndex, blendState);
+            }
+            pipeline.AddShader(&vs);
+            pipeline.AddShader(&fs);
+
+            msaa.rasterizationSamples = subpass.pipelineSamples;
+            pipeline.SetMSAA(&msaa);
+
+            // Validate pipeline creation
+            fprintf(stderr, " - subpass %zu\n", subpassIndex);
+            if (testCase.expectedPipelineCreationFailure != nullptr) {
+                m_errorMonitor->SetDesiredFailureMsg(kErrorBit, testCase.expectedPipelineCreationFailure);
+                pipeline.CreateVKPipeline(pipelineLayout.handle(), renderPass);
+                m_errorMonitor->VerifyFound();
+            }
+            else {
+                m_errorMonitor->ExpectSuccess();
+                pipeline.CreateVKPipeline(pipelineLayout.handle(), renderPass);
+                m_errorMonitor->VerifyNotFound();
+            }
+        }
+
+        // TODO: is null check really necessary?
+        if (framebuffer != VK_NULL_HANDLE) {
+            vk::DestroyFramebuffer(m_device->device(), framebuffer, nullptr);
+        }
+        if (renderPass != VK_NULL_HANDLE) {
+            vk::DestroyRenderPass(m_device->device(), renderPass, nullptr);
+        }
+    }
 }
 
 TEST_F(VkLayerTest, InvalidVkSemaphoreTypeCreateInfoCore) {

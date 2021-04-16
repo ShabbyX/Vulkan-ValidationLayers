@@ -2764,6 +2764,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreZirconHandleFUCHSIA(
     zx_handle_t*                                pZirconHandle);
 #endif // VK_USE_PLATFORM_FUCHSIA
 
+
 #ifdef VK_USE_PLATFORM_SCREEN_QNX
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateScreenSurfaceQNX(

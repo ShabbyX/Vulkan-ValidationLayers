@@ -4331,6 +4331,24 @@ template <> struct LvlSTypeMap<VK_STRUCTURE_TYPE_SEMAPHORE_GET_ZIRCON_HANDLE_INF
 };
 
 #endif // VK_USE_PLATFORM_FUCHSIA
+// Map type VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT to id VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT
+template <> struct LvlTypeMap<VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT> {
+    static const VkStructureType kSType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT;
+};
+
+template <> struct LvlSTypeMap<VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT> {
+    typedef VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT Type;
+};
+
+// Map type VkMultisampledRenderToSingleSampledInfoEXT to id VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT
+template <> struct LvlTypeMap<VkMultisampledRenderToSingleSampledInfoEXT> {
+    static const VkStructureType kSType = VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT;
+};
+
+template <> struct LvlSTypeMap<VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT> {
+    typedef VkMultisampledRenderToSingleSampledInfoEXT Type;
+};
+
 #ifdef VK_USE_PLATFORM_SCREEN_QNX
 // Map type VkScreenSurfaceCreateInfoQNX to id VK_STRUCTURE_TYPE_SCREEN_SURFACE_CREATE_INFO_QNX
 template <> struct LvlTypeMap<VkScreenSurfaceCreateInfoQNX> {

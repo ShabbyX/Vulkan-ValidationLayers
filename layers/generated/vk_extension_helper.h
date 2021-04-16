@@ -387,6 +387,7 @@ struct DeviceExtensions : public InstanceExtensions {
     ExtEnabled vk_ext_line_rasterization{kNotEnabled};
     ExtEnabled vk_ext_memory_budget{kNotEnabled};
     ExtEnabled vk_ext_memory_priority{kNotEnabled};
+    ExtEnabled vk_ext_multisampled_render_to_single_sampled{kNotEnabled};
     ExtEnabled vk_ext_pci_bus_info{kNotEnabled};
     ExtEnabled vk_ext_pipeline_creation_cache_control{kNotEnabled};
     ExtEnabled vk_ext_pipeline_creation_feedback{kNotEnabled};
@@ -647,6 +648,9 @@ struct DeviceExtensions : public InstanceExtensions {
                            {&DeviceExtensions::vk_khr_get_physical_device_properties_2, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME}}})},
             {VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME, DeviceInfo(&DeviceExtensions::vk_ext_memory_priority, {{
                            {&DeviceExtensions::vk_khr_get_physical_device_properties_2, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME}}})},
+            {VK_EXT_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_EXTENSION_NAME, DeviceInfo(&DeviceExtensions::vk_ext_multisampled_render_to_single_sampled, {{
+                           {&DeviceExtensions::vk_khr_create_renderpass_2, VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME},
+                           {&DeviceExtensions::vk_khr_depth_stencil_resolve, VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME}}})},
             {VK_EXT_PCI_BUS_INFO_EXTENSION_NAME, DeviceInfo(&DeviceExtensions::vk_ext_pci_bus_info, {{
                            {&DeviceExtensions::vk_khr_get_physical_device_properties_2, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME}}})},
             {VK_EXT_PIPELINE_CREATION_CACHE_CONTROL_EXTENSION_NAME, DeviceInfo(&DeviceExtensions::vk_ext_pipeline_creation_cache_control, {})},
@@ -1091,6 +1095,7 @@ static const std::set<std::string> kDeviceExtensionNames = {
     VK_EXT_LINE_RASTERIZATION_EXTENSION_NAME,
     VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
     VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME,
+    VK_EXT_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_EXTENSION_NAME,
     VK_EXT_PCI_BUS_INFO_EXTENSION_NAME,
     VK_EXT_PIPELINE_CREATION_CACHE_CONTROL_EXTENSION_NAME,
     VK_EXT_PIPELINE_CREATION_FEEDBACK_EXTENSION_NAME,
