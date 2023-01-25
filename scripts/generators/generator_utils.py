@@ -18,35 +18,59 @@ import os
 import sys
 import json
 
-# Build a set of all vuid text strings found in validusage.json
-def buildListVUID(valid_usage_file: str) -> set:
+# Build a set of all vus as found in validusage.json,
+# grouped by their API token and associated with their VUIDs
+def buildListVUs(valid_usage_file: str) -> dict:
 
     # Walk the JSON-derived dict and find all "vuid" key values
-    def ExtractVUIDs(vuid_dict):
-        if hasattr(vuid_dict, 'items'):
-            for key, value in vuid_dict.items():
-                if key == "vuid":
-                    yield value
-                elif isinstance(value, dict):
-                    for vuid in ExtractVUIDs(value):
-                        yield vuid
-                elif isinstance (value, list):
-                    for listValue in value:
-                        for vuid in ExtractVUIDs(listValue):
-                            yield vuid
+    def ExtractVUs(vus, api):
+        if isinstance(vus, dict):
+            # Get the vuid/text pair if any
+            if 'vuid' in vus:
+                assert('text' in vus)
 
-    valid_vuids = set()
+                vuid = vus['vuid']
+                vuText = vus['text']
+
+                # Flag errors in the spec if {refpage} is not set correctly.
+                assert(vuid.split('-')[1].startswith(api))
+
+                yield api, vuid, vuText
+
+            # Recursively extract VUIDs from nested items
+            for name, subvus in vus.items():
+                for vu in ExtractVUs(subvus, name if api == '' else api):
+                    yield vu
+        elif isinstance (vus, list):
+            for subvus in vus:
+                for vu in ExtractVUs(subvus, api):
+                    yield vu
+
     if not os.path.isfile(valid_usage_file):
         print(f'Error: Could not find, or error loading {valid_usage_file}')
         sys.exit(1)
     json_file = open(valid_usage_file, 'r', encoding='utf-8')
-    vuid_dict = json.load(json_file)
+    valid_usage = json.load(json_file)
     json_file.close()
-    if len(vuid_dict) == 0:
+    if len(valid_usage) == 0:
         print(f'Error: Failed to load {valid_usage_file}')
         sys.exit(1)
-    for json_vuid_string in ExtractVUIDs(vuid_dict):
-        valid_vuids.add(json_vuid_string)
+
+    vu_dict = {}
+    for api, vuid, vu in ExtractVUs(valid_usage['validation'], ''):
+        if api not in vu_dict:
+            vu_dict[api] = []
+        vu_dict[api].append((vuid, vu))
+
+    return vu_dict
+
+# Build a set of all vuid text strings found in validusage.json
+def buildListVUID(valid_usage_file: str) -> set:
+
+    vu_dict = buildListVUs(valid_usage_file)
+
+    # Extract only the VUIDs and discard everything else
+    valid_vuids = set([vuid for apiVUs in vu_dict.values() for vuid, _ in apiVUs])
 
     # List of VUs that should exists, but have a spec bug
     for vuid in [

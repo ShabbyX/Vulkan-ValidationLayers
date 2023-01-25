@@ -61,6 +61,11 @@ class APISpecific:
                         'enabled': '!disables[core_checks]'
                     },
                     {
+                        'include': 'explicit/explicit_validation.h',
+                        'class': 'ExplicitValidation',
+                        'enabled': '!disables[explicit_validation]'
+                    },
+                    {
                         'include': 'best_practices/best_practices_validation.h',
                         'class': 'BestPractices',
                         'enabled': 'enables[best_practices]'
@@ -129,6 +134,7 @@ void ValidationObject::InitObjectDispatchVectors() {
                                 typeid(&StatelessValidation::name), \\
                                 typeid(&ObjectLifetimes::name), \\
                                 typeid(&CoreChecks::name), \\
+                                typeid(&ExplicitValidation::name), \\
                                 typeid(&BestPractices::name), \\
                                 typeid(&GpuAssisted::name), \\
                                 typeid(&DebugPrintf::name), \\
@@ -140,6 +146,7 @@ void ValidationObject::InitObjectDispatchVectors() {
                                               const std::type_info& tpv_typeid,
                                               const std::type_info& tot_typeid,
                                               const std::type_info& tcv_typeid,
+                                              const std::type_info& tev_typeid,
                                               const std::type_info& tbp_typeid,
                                               const std::type_info& tga_typeid,
                                               const std::type_info& tdp_typeid,
@@ -158,6 +165,9 @@ void ValidationObject::InitObjectDispatchVectors() {
                 break;
             case LayerObjectTypeCoreValidation:
                 if (tcv_typeid != vo_typeid) intercept_vector->push_back(item);
+                break;
+            case LayerObjectTypeExplicitValidation:
+                if (tev_typeid != vo_typeid) intercept_vector->push_back(item);
                 break;
             case LayerObjectTypeBestPractices:
                 if (tbp_typeid != vo_typeid) intercept_vector->push_back(item);
@@ -345,6 +355,7 @@ class LayerChassisOutputGenerator(BaseGenerator):
                 LayerObjectTypeParameterValidation,  // Instance or device parameter validation layer object
                 LayerObjectTypeObjectTracker,        // Instance or device object tracker layer object
                 LayerObjectTypeCoreValidation,       // Instance or device core validation layer object
+                LayerObjectTypeExplicitValidation,   // Instance or device explicit validation layer object
                 LayerObjectTypeBestPractices,        // Instance or device best practices layer object
                 LayerObjectTypeGpuAssisted,          // Instance or device gpu assisted validation layer object
                 LayerObjectTypeDebugPrintf,          // Instance or device shader debug printf layer object
@@ -402,6 +413,7 @@ class LayerChassisOutputGenerator(BaseGenerator):
                 handle_wrapping,
                 shader_validation,
                 shader_validation_caching,
+                explicit_validation,
                 // Insert new disables above this line
                 kMaxDisableFlags,
             } DisableFlags;
@@ -867,6 +879,8 @@ class LayerChassisOutputGenerator(BaseGenerator):
                     type_id = LayerObjectTypeObjectTracker;
                 } else if constexpr (std::is_same_v<ValidationObjectType, CoreChecks>) {
                     type_id = LayerObjectTypeCoreValidation;
+                } else if constexpr (std::is_same_v<ValidationObjectType, ExplicitValidation>) {
+                    type_id = LayerObjectTypeExplicitValidation;
                 } else {
                     static_assert(vvl::dependent_false_v<ValidationObjectType>, "unsupported validation object type");
                 }
@@ -877,6 +891,7 @@ class LayerChassisOutputGenerator(BaseGenerator):
             template StatelessValidation* ValidationObject::GetValidationObject<StatelessValidation>() const;
             template ObjectLifetimes* ValidationObject::GetValidationObject<ObjectLifetimes>() const;
             template CoreChecks* ValidationObject::GetValidationObject<CoreChecks>() const;
+            template ExplicitValidation* ValidationObject::GetValidationObject<ExplicitValidation>() const;
 
             namespace vulkan_layer_chassis {
 
