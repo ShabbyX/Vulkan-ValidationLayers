@@ -192,12 +192,16 @@ target_sources(VkLayer_khronos_validation PRIVATE
     core_checks/synchronization_validation.cpp
     core_checks/video_validation.cpp
     core_checks/wsi_validation.cpp
+    explicit/explicit_validation.h
+    explicit/explicit_validation_builtins.cpp
     generated/best_practices.cpp
     generated/best_practices.h
     generated/chassis.cpp
     generated/valid_param_values.cpp
     generated/command_validation.cpp
     generated/enum_flag_bits.h
+    generated/explicit_validation.cpp
+    generated/explicit_validation_functions.h
     generated/layer_chassis_dispatch.cpp
     generated/object_tracker.cpp
     generated/object_tracker.h

@@ -1565,6 +1565,7 @@ void ValidationObject::InitObjectDispatchVectors() {
                                 typeid(&StatelessValidation::name), \
                                 typeid(&ObjectLifetimes::name), \
                                 typeid(&CoreChecks::name), \
+                                typeid(&ExplicitValidation::name), \
                                 typeid(&BestPractices::name), \
                                 typeid(&GpuAssisted::name), \
                                 typeid(&DebugPrintf::name), \
@@ -1576,6 +1577,7 @@ void ValidationObject::InitObjectDispatchVectors() {
                                               const std::type_info& tpv_typeid,
                                               const std::type_info& tot_typeid,
                                               const std::type_info& tcv_typeid,
+                                              const std::type_info& tev_typeid,
                                               const std::type_info& tbp_typeid,
                                               const std::type_info& tga_typeid,
                                               const std::type_info& tdp_typeid,
@@ -1594,6 +1596,9 @@ void ValidationObject::InitObjectDispatchVectors() {
                 break;
             case LayerObjectTypeCoreValidation:
                 if (tcv_typeid != vo_typeid) intercept_vector->push_back(item);
+                break;
+            case LayerObjectTypeExplicitValidation:
+                if (tev_typeid != vo_typeid) intercept_vector->push_back(item);
                 break;
             case LayerObjectTypeBestPractices:
                 if (tbp_typeid != vo_typeid) intercept_vector->push_back(item);

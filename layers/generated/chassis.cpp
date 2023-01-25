@@ -46,6 +46,7 @@ bool wrap_handles = true;
 #include "core_checks/core_validation.h"
 #include "gpu_validation/gpu_validation.h"
 #include "object_lifetime_validation.h"
+#include "explicit/explicit_validation.h"
 #include "gpu_validation/debug_printf.h"
 #include "stateless/stateless_validation.h"
 #include "sync/sync_validation.h"
@@ -290,6 +291,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
     auto core_checks_obj = new CoreChecks;
     core_checks_obj->RegisterValidationObject(!local_disables[core_checks], api_version, report_data, local_object_dispatch);
 
+    auto explicit_validation_obj = new ExplicitValidation;
+    explicit_validation_obj->RegisterValidationObject(!local_disables[explicit_validation], api_version, report_data, local_object_dispatch);
+
     auto best_practices_obj = new BestPractices;
     best_practices_obj->RegisterValidationObject(local_enables[best_practices], api_version, report_data, local_object_dispatch);
 
@@ -481,6 +485,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDevice
 
     auto core_checks_obj = new CoreChecks;
     core_checks_obj->InitDeviceValidationObject(!disables[core_checks], instance_interceptor, device_interceptor);
+
+    auto explicit_validation_obj = new ExplicitValidation;
+    explicit_validation_obj->InitDeviceValidationObject(!disables[explicit_validation], instance_interceptor, device_interceptor);
 
     auto best_practices_obj = new BestPractices;
     best_practices_obj->InitDeviceValidationObject(enables[best_practices], instance_interceptor, device_interceptor);

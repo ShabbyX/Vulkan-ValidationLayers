@@ -618,7 +618,7 @@ def genTarget(args):
     else:
         write('No generator options for unknown target:',
               args.target, file=sys.stderr)
-        return none
+        return None
 
 # -feature name
 # -extension name
