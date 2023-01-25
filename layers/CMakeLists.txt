@@ -199,6 +199,8 @@ target_sources(vvl PRIVATE
     core_checks/cc_wsi.cpp
     core_checks/cc_ycbcr.cpp
     error_message/validation_error_enums.h
+    explicit/explicit_validation.h
+    explicit/explicit_validation_utils.cpp
     external/vma/vma.h
     external/vma/vma.cpp
     ${API_TYPE}/generated/best_practices.cpp
@@ -209,6 +211,9 @@ target_sources(vvl PRIVATE
     ${API_TYPE}/generated/command_validation.cpp
     ${API_TYPE}/generated/dynamic_state_helper.cpp
     ${API_TYPE}/generated/enum_flag_bits.h
+    ${API_TYPE}/generated/explicit_validation_commands.cpp
+    ${API_TYPE}/generated/explicit_validation_decl.h
+    ${API_TYPE}/generated/explicit_validation_structs.cpp
     ${API_TYPE}/generated/layer_chassis_dispatch.cpp
     layer_chassis_dispatch_manual.cpp
     ${API_TYPE}/generated/object_tracker.cpp
