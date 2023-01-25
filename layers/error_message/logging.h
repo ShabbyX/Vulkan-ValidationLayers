@@ -190,6 +190,7 @@ typedef struct _debug_report_data {
     mutable vvl::unordered_map<uint32_t, uint32_t> duplicate_message_count_map{};
     const void *instance_pnext_chain{};
     bool forceDefaultLogCallback{false};
+    bool annotated{false};
     uint32_t device_created = 0;
 
     void DebugReportSetUtilsObjectName(const VkDebugUtilsObjectNameInfoEXT *pNameInfo) {
@@ -285,6 +286,8 @@ static inline void DebugReportFlagsToAnnotFlags(VkDebugReportFlagsEXT dr_flags, 
 
 struct Location;
 VKAPI_ATTR bool LogMsg(const debug_report_data *debug_data, VkFlags msg_flags, const LogObjectList &objects, const Location *loc,
+                       std::string_view vuid_text, const char *format, va_list argptr);
+VKAPI_ATTR bool LogFormattedMsg(const debug_report_data *debug_data, VkFlags msg_flags, const LogObjectList &objects,
                        std::string_view vuid_text, const char *format, va_list argptr);
 
 VKAPI_ATTR VkResult LayerCreateMessengerCallback(debug_report_data *debug_data, bool default_callback,

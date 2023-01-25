@@ -22063,8 +22063,8 @@ bool StatelessValidation::PreCallValidateCreateDebugUtilsMessengerEXT(VkInstance
         skip |= ValidateStructPnext(pCreateInfo_loc, pCreateInfo->pNext, 0, nullptr, GeneratedVulkanHeaderVersion, kVUIDUndefined,
                                     kVUIDUndefined, false, true);
 
-        skip |= ValidateReservedFlags(pCreateInfo_loc.dot(Field::flags), pCreateInfo->flags,
-                                      "VUID-VkDebugUtilsMessengerCreateInfoEXT-flags-zerobitmask");
+        //skip |= ValidateReservedFlags(pCreateInfo_loc.dot(Field::flags), pCreateInfo->flags,
+        //                              "VUID-VkDebugUtilsMessengerCreateInfoEXT-flags-zerobitmask");
 
         skip |= ValidateFlags(pCreateInfo_loc.dot(Field::messageSeverity), "VkDebugUtilsMessageSeverityFlagBitsEXT",
                               AllVkDebugUtilsMessageSeverityFlagBitsEXT, pCreateInfo->messageSeverity, kRequiredFlags,

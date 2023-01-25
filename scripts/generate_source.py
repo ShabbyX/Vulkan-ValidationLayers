@@ -44,10 +44,15 @@ def RunGenerators(api: str, registry: str, grammar: str, directory: str, styleFi
     sys.path.insert(0, registry_headers_path)
     from reg import Registry
 
+    # Additionally, add the scripts/ directory to path for explicit_validation_generator to find the
+    # codified VU related files.
+    sys.path.insert(0, scripts_directory_path)
+
     from generators.base_generator import BaseGeneratorOptions
     from generators.thread_safety_generator import ThreadSafetyOutputGenerator
     from generators.stateless_validation_helper_generator import StatelessValidationHelperOutputGenerator
-    from generators.object_tracker_generator import  ObjectTrackerOutputGenerator
+    from generators.object_tracker_generator import ObjectTrackerOutputGenerator
+    from generators.explicit_validation_generator import ExplicitValidationOutputGenerator
     from generators.dispatch_table_helper_generator import DispatchTableHelperOutputGenerator
     from generators.extension_helper_generator import ExtensionHelperOutputGenerator
     from generators.api_version_generator import ApiVersionOutputGenerator
@@ -130,6 +135,21 @@ def RunGenerators(api: str, registry: str, grammar: str, directory: str, styleFi
         },
         'object_tracker.cpp' : {
             'generator' : ObjectTrackerOutputGenerator,
+            'genCombined': True,
+            'options' : [valid_usage_file],
+        },
+        'explicit_validation_commands.cpp' : {
+            'generator' : ExplicitValidationOutputGenerator,
+            'genCombined': True,
+            'options' : [valid_usage_file],
+        },
+        'explicit_validation_structs.cpp' : {
+            'generator' : ExplicitValidationOutputGenerator,
+            'genCombined': True,
+            'options' : [valid_usage_file],
+        },
+        'explicit_validation_decl.h' : {
+            'generator' : ExplicitValidationOutputGenerator,
             'genCombined': True,
             'options' : [valid_usage_file],
         },

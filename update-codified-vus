@@ -1,0 +1,10 @@
+#! /bin/bash
+
+docs="$HOME/vulkan-docs"
+registry="external/Vulkan-Headers/registry"
+
+cp "$docs/scripts/vuAST.py" "$registry/"
+cp "$docs/scripts/reflib.py" "$registry/"
+cp "$docs/gen/out/validation/validusage.json" "$registry/"
+
+# scripts/generate_source.py external/Vulkan-Headers/registry/ external/SPIRV-Headers/include/spirv/unified1/ --target explicit_validation_decl.h explicit_validation_structs.cpp explicit_validation_commands.cpp

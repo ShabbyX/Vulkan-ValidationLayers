@@ -51,6 +51,7 @@ bool wrap_handles = true;
 #include "stateless/stateless_validation.h"
 #include "object_tracker/object_lifetime_validation.h"
 #include "core_checks/core_validation.h"
+#include "explicit/explicit_validation.h"
 #include "best_practices/best_practices_validation.h"
 #include "gpu_validation/gpu_validation.h"
 #include "gpu_validation/debug_printf.h"
@@ -89,6 +90,9 @@ static std::vector<ValidationObject*> CreateObjectDispatch(const CHECK_ENABLED& 
     if (!disables[core_checks]) {
         object_dispatch.emplace_back(new CoreChecks);
     }
+    if (!disables[explicit_validation]) {
+        object_dispatch.emplace_back(new ExplicitValidation);
+    }
     if (enables[best_practices]) {
         object_dispatch.emplace_back(new BestPractices);
     }
@@ -123,6 +127,9 @@ static void InitDeviceObjectDispatch(ValidationObject* instance_interceptor, Val
     if (!disables[core_checks]) {
         device_interceptor->object_dispatch.emplace_back(new CoreChecks);
     }
+    if (!disables[explicit_validation]) {
+        device_interceptor->object_dispatch.emplace_back(new ExplicitValidation);
+    }
     if (enables[best_practices]) {
         device_interceptor->object_dispatch.emplace_back(new BestPractices);
     }
@@ -151,6 +158,8 @@ ValidationObjectType* ValidationObject::GetValidationObject() const {
         type_id = LayerObjectTypeObjectTracker;
     } else if constexpr (std::is_same_v<ValidationObjectType, CoreChecks>) {
         type_id = LayerObjectTypeCoreValidation;
+    } else if constexpr (std::is_same_v<ValidationObjectType, ExplicitValidation>) {
+        type_id = LayerObjectTypeExplicitValidation;
     } else {
         static_assert(vvl::dependent_false_v<ValidationObjectType>, "unsupported validation object type");
     }
@@ -161,6 +170,7 @@ template ThreadSafety* ValidationObject::GetValidationObject<ThreadSafety>() con
 template StatelessValidation* ValidationObject::GetValidationObject<StatelessValidation>() const;
 template ObjectLifetimes* ValidationObject::GetValidationObject<ObjectLifetimes>() const;
 template CoreChecks* ValidationObject::GetValidationObject<CoreChecks>() const;
+template ExplicitValidation* ValidationObject::GetValidationObject<ExplicitValidation>() const;
 
 namespace vulkan_layer_chassis {
 
