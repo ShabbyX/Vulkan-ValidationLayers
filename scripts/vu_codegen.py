@@ -24,7 +24,7 @@ from collections import namedtuple
 import sys
 
 import spec_tools.util as util
-from vuAST import VuAST, VuFormatter, isComment
+from vuAST import VuAST, VuFormatter, VuFormatterText, VuLanguageEN, isComment
 
 from vu_merger import mergeVus
 from vu_message import generateVuMessage, VuPrintfStyler
@@ -449,7 +449,8 @@ class VuCodegen(ast.NodeVisitor):
 
         # Generate an error message based on the original VU, extracting relevant objects,
         # adding relevant values and highlighting the failed require().
-        formatter = VuFormatter(VuPrintfStyler(self, requireIndex))
+        #formatter = VuFormatter(VuPrintfStyler(self, requireIndex))
+        formatter = VuFormatterText(VuPrintfStyler(self, requireIndex), VuLanguageEN())
         message, objects = generateVuMessage(formatter, self.originalVus[vuIndex])
 
         # List of objects that are involved in the VU
