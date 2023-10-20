@@ -38,7 +38,8 @@ stylePattern = re.compile(r'\${vu-[a-z-]*}')
 valuePattern = re.compile(r'{{[^}]*}}')
 styleAndValuePattern = re.compile(r'\${vu-value}{{[^}]*}}\${}')
 
-REQUIRE_FAIL_MESSAGE = '${vu-fail} <-- Failing condition (Values captured at this instant)${}'
+#REQUIRE_FAIL_MESSAGE = '${vu-fail} <-- Failing condition (Values captured at this instant)${}'
+REQUIRE_FAIL_MESSAGE = '${vu-fail} <-- Condition défaillante (Valeurs capturées à cet instant)${}'
 
 STR_BEGIN = 'R"('
 STR_END = ')"'

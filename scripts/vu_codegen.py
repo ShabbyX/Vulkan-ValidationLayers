@@ -450,7 +450,8 @@ class VuCodegen(ast.NodeVisitor):
         # Generate an error message based on the original VU, extracting relevant objects,
         # adding relevant values and highlighting the failed require().
         #formatter = VuFormatter(VuPrintfStyler(self, requireIndex))
-        formatter = VuFormatterText(VuPrintfStyler(self, requireIndex), VuLanguageEN())
+        #formatter = VuFormatterText(VuPrintfStyler(self, requireIndex), VuLanguageEN())
+        formatter = VuFormatterText(VuPrintfStyler(self, requireIndex), VuLanguageFR())
         message, objects = generateVuMessage(formatter, self.originalVus[vuIndex])
 
         # List of objects that are involved in the VU
@@ -614,6 +615,140 @@ class VuCodegen(ast.NodeVisitor):
         _, varType = getAPIParamInfo(self.vk, self.api, node.id)
 
         return [node.id], varType
+
+
+class VuLanguageFR:
+    """Helper class to generate French out of the VUs"""
+    def __init__(self):
+        pass
+
+    def isOrMustBe(self, expectTrue, must):
+        if expectTrue:
+            if must:
+                return [' doit être ']
+            else:
+                return [' ne doit pas être ']
+        else:
+            if must:
+                return [' est ']
+            else:
+                return [' n\'est pas ']
+
+    def doesOrMustDo(self, expectTrue, must, verb, infinite):
+        if must:
+            return [' doit ' if expectTrue else ' ne doit pas ',
+                    infinite, ' ']
+        if expectTrue:
+            return [' ', verb, ' ']
+        return [' ne ', verb, ' pas ']
+
+    def isTrue(self, name, expectTrue, must):
+        return name + self.isOrMustBe(True, must) + ['vrai' if expectTrue else 'faux']
+
+    def equals(self, left, right, expectTrue, must):
+        return left + self.isOrMustBe(expectTrue, must) + ['égal à '] + right
+
+    def lessThan(self, left, right, expectTrue, must):
+        if not expectTrue:
+            return self.greaterThanOrEqual(left, right, True, must)
+        return left + self.isOrMustBe(True, must) + ['inférieur que '] + right
+
+    def lessThanOrEqual(self, left, right, expectTrue, must):
+        if not expectTrue:
+            return self.greaterThan(left, right, True, must)
+        return left + self.isOrMustBe(True, must) + ['inférieur ou égal à '] + right
+
+    def greaterThan(self, left, right, expectTrue, must):
+        if not expectTrue:
+            return self.lessThanOrEqual(left, right, True, must)
+        return left + self.isOrMustBe(True, must) + ['supérieur à '] + right
+
+    def greaterThanOrEqual(self, left, right, expectTrue, must):
+        if not expectTrue:
+            return self.lessThan(left, right, True, must)
+        return left + self.isOrMustBe(True, must) + ['supérieur ou égal à '] + right
+
+    def ifAllAny(self, isAll, isElif, expectTrue):
+        return ['sinon, ' if isElif else '',
+                'si ',
+                'tous les ' if isAll else 'l\'un des ',
+                'éléments suivants est ',
+                'vrai' if expectTrue else 'faux']
+
+    def ifTrueFalse(self, isElif, expectTrue):
+        return ['sinon, ' if isElif else '',
+                'si ce qui suit est ',
+                'vrai' if expectTrue else 'faux']
+
+    def ifCond(self, condition, isElif):
+        return ['sinon, si ' if isElif else 'si '] + condition
+
+    def orelse(self):
+        return ['sinon']
+
+    def then(self):
+        return ['alors']
+
+    def let(self, variable, what):
+        return ['soit '] + variable + [' égal '] + what
+
+    def letComplex(self, variable, isAll, expectTrue):
+        return ['soit '] + variable + [' égal '] + self.allAny(isAll, expectTrue)
+
+    def foreach(self, target, iter):
+        return ['pour chaque '] + target + [' dans '] + iter
+
+    def allAny(self, isAll, expectTrue):
+        return ['tous les ' if isAll else 'l\'un des ',
+                'éléments suivants est ',
+                'vrai' if expectTrue else 'faus']
+
+    def mustAllAny(self, isAll, expectTrue):
+        return ['tous les ' if isAll else 'l\'un des ',
+                'éléments suivants doit être ',
+                'vrai' if expectTrue else 'faux']
+
+    def hasPNext(self, struct, expectTrue, must):
+        return struct + [' struct'] + self.isOrMustBe(expectTrue, must) + ['dans la chaîne pNext']
+
+    def attributeHasPNext(self, value, struct, expectTrue, must):
+        return struct + [' struct'] + self.isOrMustBe(expectTrue, must) + ['dans la chaîne pNext de '] + value
+
+    def pNext(self, struct):
+        return ['le '] + struct + [' struct dans la chaîne pNext']
+
+    def attributePNext(self, struct):
+        return ['le '] + struct + [' struct dans la chaîne pNext de '] + value
+
+    def arrayIndex(self, target):
+        return ['l\'indice de '] + target
+
+    def isVersion(self, version, expectTrue, must):
+        return ['apiVersion'] + self.isOrMustBe(expectTrue, must) + version
+
+    def isExtEnabled(self, extension, expectTrue, must):
+        return ['le `apiext:'] + extension + [' extension'] + self.isOrMustBe(expectTrue, must) + ['activé']
+
+    def isFeatureEnabled(self, feature, expectTrue, must):
+        return ['la '] + feature + [' fonctionnalité'] + self.isOrMustBe(expectTrue, must) + ['activé']
+
+    def isExternallySynchronized(self, what, expectTrue, must):
+        return what + self.isOrMustBe(expectTrue, must) + ['synchronisé en externe']
+
+    def hasBit(self, value, bit, expectTrue, must):
+        return value + self.doesOrMustDo(expectTrue, must, 'contient', 'contenir') + bit
+
+    def any(self, value, expectTrue, must):
+        return value + self.isOrMustBe(not expectTrue, must) + ['`0`']
+
+    def none(self, value, expectTrue, must):
+        return self.any(value, not expectTrue, must)
+
+    def valid(self, value, expectTrue, must):
+        return value + self.isOrMustBe(expectTrue, must) + ['un handle valide de son type']
+
+    def subscript(self, array, index):
+        return ['l\'élément '] + index + [' de '] + array
 
 
 def compileVU(vuText):
